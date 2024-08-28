@@ -4,10 +4,17 @@ import Item from "./Item";
 
 const Product = () => {
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [category, setCategory] = useState("all");
 
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    filterProducts();
+    // eslint-disable-next-line
+  }, [products, category]);
 
   const fetchProducts = async () => {
     try {
@@ -18,22 +25,38 @@ const Product = () => {
     }
   };
 
+  const filterProducts = () => {
+    if (category === "all") {
+      setFilteredProducts(products);
+    } else {
+      const filtered = products.filter((product) =>
+        product.category.toLowerCase().includes(category)
+      );
+      setFilteredProducts(filtered);
+    }
+  };
+
   // Function to handle sorting based on price
   const sortProductsByPrice = (order) => {
-    const sortedProducts = [...products];
+    const sortedProducts = [...filteredProducts];
     sortedProducts.sort((a, b) => {
       return order === "asc" ? a.price - b.price : b.price - a.price;
     });
-    setProducts(sortedProducts);
+    setFilteredProducts(sortedProducts);
   };
 
   // Function to handle sorting based on title
   const sortProductsByTitle = () => {
-    const sortedProducts = [...products];
+    const sortedProducts = [...filteredProducts];
     sortedProducts.sort((a, b) => {
       return a.title.localeCompare(b.title);
     });
-    setProducts(sortedProducts);
+    setFilteredProducts(sortedProducts);
+  };
+
+  // Function to handle category selection
+  const handleCategoryChange = (selectedCategory) => {
+    setCategory(selectedCategory);
   };
 
   return (
@@ -64,12 +87,32 @@ const Product = () => {
               >
                 Title: A-Z
               </button>
+
+              <h5>Filter By Category:</h5>
+              <button
+                className="btn btn-link"
+                onClick={() => handleCategoryChange("all")}
+              >
+                All
+              </button>
+              <button
+                className="btn btn-link"
+                onClick={() => handleCategoryChange("men")}
+              >
+                Men
+              </button>
+              <button
+                className="btn btn-link"
+                onClick={() => handleCategoryChange("women")}
+              >
+                Women
+              </button>
             </div>
           </div>
         </div>
         <div className="col-lg-9 col-md-8 col-sm-12">
           <div className="row">
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <div
                 key={product.id}
                 className="col-lg-4 col-md-6 col-sm-12 mb-2 mt-2 text-center"
